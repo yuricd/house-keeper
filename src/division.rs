@@ -18,10 +18,9 @@ impl Division {
     fn dirtyness(&self, compare: Option<DateTime<Utc>>) -> f32 {
         let today = compare.unwrap_or(Utc::now());
         let frequency_days = self.frequency as i64;
-        let next_clean_at = self.last_cleaned_at + Duration::days(frequency_days);
-        let days_diff = (next_clean_at - today).num_days();
+        let days_diff = (today - self.last_cleaned_at).num_days();
         let percentage = days_diff as f32 / frequency_days as f32;
-        1.0 - percentage
+        percentage
     }
 
     fn clean(&mut self, cleaned_at: Option<DateTime<Utc>>) {
