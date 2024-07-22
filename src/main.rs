@@ -1,6 +1,5 @@
-use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder, Result};
-use chrono::Utc;
-use division::{CleanFrequency, Division};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, Result};
+use serde::Serialize;
 
 mod division;
 mod repositories;
@@ -23,20 +22,19 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body("OK")
 }
 
-#[get("/status")]
+#[get("/divisions/status")]
 async fn home_status() -> Result<impl Responder, actix_web::Error> {
     let divisions = repositories::DivisionRepo::get_divisions();
     Ok(web::Json(divisions))
 }
 
-#[get("/division/{division_id}/clean")]
-async fn home_clean(req: HttpRequest) -> impl Responder {
-    let division_id: String = req
-        .match_info()
-        .get("division_id")
-        .unwrap()
-        .parse()
-        .unwrap();
+#[derive(Serialize)]
+struct CleanResponse {
+    result: bool,
+}
 
-    HttpResponse::Ok().body(format!("Clean division {}", division_id))
+#[get("/divisions/{division_name}/clean")]
+async fn home_clean(division_name: web::Path<String>) -> Result<impl Responder, actix_web::Error> {
+    let res = repositories::DivisionRepo::update(division_name.to_string());
+    Ok(web::Json(CleanResponse { result: res }))
 }
