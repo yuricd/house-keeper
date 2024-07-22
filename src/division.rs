@@ -1,21 +1,23 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
+use serde::Serialize;
 
 #[repr(i64)]
-#[derive(Copy, Clone)]
-enum CleanFrequency {
+#[derive(Copy, Clone, Serialize)]
+pub enum CleanFrequency {
     EveryWeek = 7,
     EveryTwoWeeks = 14,
     OnceAMonth = 30,
 }
 
-struct Division {
-    name: String,
-    last_cleaned_at: DateTime<Utc>,
-    frequency: CleanFrequency,
+#[derive(Serialize)]
+pub struct Division {
+    pub name: String,
+    pub last_cleaned_at: DateTime<Utc>,
+    pub frequency: CleanFrequency,
 }
 
 impl Division {
-    fn dirtyness(&self, compare: Option<DateTime<Utc>>) -> f32 {
+    pub fn dirtyness(&self, compare: Option<DateTime<Utc>>) -> f32 {
         let today = compare.unwrap_or(Utc::now());
         let frequency_days = self.frequency as i64;
         let days_diff = (today - self.last_cleaned_at).num_days();
@@ -23,7 +25,7 @@ impl Division {
         percentage
     }
 
-    fn clean(&mut self, cleaned_at: Option<DateTime<Utc>>) {
+    pub fn clean(&mut self, cleaned_at: Option<DateTime<Utc>>) {
         self.last_cleaned_at = cleaned_at.unwrap_or(Utc::now());
     }
 }
